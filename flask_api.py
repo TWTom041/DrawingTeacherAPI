@@ -4,11 +4,9 @@ import numpy as np
 import backend
 
 app = Flask(__name__)
+app.debug = True
 
 SHAPE = (384, 384, 1)
-
-
-
 
 
 def b64tocv2(b64img):
@@ -63,3 +61,6 @@ def nextline():
         "drew": cv2tob64(drew),
     })
 
+
+if __name__ == "__main__":
+    app.run()

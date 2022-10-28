@@ -95,7 +95,9 @@ def make_trans(content, style):
     img = content_trans.convert(content, style)
     if type(img) != np.ndarray:
         img = img.numpy()
-    return img
+    img *= 255
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return img.astype(int)
 
 
 def outline(original_image):

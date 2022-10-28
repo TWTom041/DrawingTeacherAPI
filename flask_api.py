@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify
 import cv2, base64
 import numpy as np
 import backend
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.debug = True
 
 SHAPE = (384, 384, 1)
@@ -24,8 +26,9 @@ def home():
 
 @app.route("/style_transfer", methods=["POST"])
 def trans():
-    content_img = request.values["content"]  # already base64
-    style_img = request.values["style"]  # already base64
+    print(request.json)
+    content_img = request.json["content"]  # already base64
+    style_img = request.json["style"]  # already base64
     stylized = backend.make_trans(content_img, style_img)
     output = cv2tob64(stylized)
     return jsonify({"stylized": output})

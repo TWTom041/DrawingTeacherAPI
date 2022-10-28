@@ -18,7 +18,7 @@ def crop_center(image):
 @functools.lru_cache(maxsize=None)
 def load_image(image_base64, image_size=(256, 256), preserve_aspect_ratio=True):
     """Loads and preprocesses images."""
-    image_base64 = image_base64.decode("utf-8").replace("+", "-").replace("/", "_")
+    image_base64 = image_base64.replace("+", "-").replace("/", "_")
     img = tf.io.decode_image(
         tf.io.decode_base64(image_base64),
         channels=3,
@@ -82,7 +82,7 @@ def convert(content, style):
 
     # show_n([content_image, style_image, stylized_image],
     #        titles=['Original content image', 'Style image', 'Stylized image'])
-    return stylized_image
+    return stylized_image[0]
 
 
 if __name__ == "__main__":

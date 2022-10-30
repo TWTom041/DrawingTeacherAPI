@@ -21,7 +21,7 @@ def cv2tob64(npimg):
 
 @app.route("/")
 def home():
-    return "running"
+    return jsonify("running")
 
 
 @app.route("/style_transfer", methods=["POST"])

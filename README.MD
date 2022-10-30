@@ -1,6 +1,6 @@
 # Drawing Teacher API
 ## Description
-This project is the API server for Drawing Teacher App, which is at [here]().
+This project is the API server for Drawing Teacher App, which is [here](https://github.com/TWTom041/DrawingTeacherApp).
 
 This project uses flask framework as our server's backend.
 ## Usage

@@ -2,8 +2,7 @@ import cv2
 import numpy as np
 
 
-def get_outline(image: np.ndarray, method=None):
-    method = method if method is not None else "canny_blurred"
+def get_outline(image: np.ndarray, method="canny_blurred"):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     if method == "canny":
         return cv2.Canny(gray, 30, 150)
@@ -36,14 +35,15 @@ def group(image):
     groups = []
     maps_all = get_map(image)
     while maps_all:
-        gp = {"geocenter": tuple, "dot_indexes": [maps_all[0]], "nextdo": [maps_all[0]]}
+        nextdo = [maps_all[0]]
+        gp = {"geocenter": tuple, "dot_indexes": [maps_all[0]]}
         maps_all.pop(0)
-        while gp["nextdo"]:
-            for n in list(gp["nextdo"].copy()):
+        while nextdo:
+            for n in list(nextdo.copy()):
                 neighbors, maps_all = get_neighbor(n, maps_all)
-                gp["nextdo"].remove(n)
+                nextdo.remove(n)
                 gp["dot_indexes"] += neighbors
-                gp["nextdo"] += neighbors
+                nextdo += neighbors
         gp["geocenter"] = calculate_geocenter(gp["dot_indexes"])
         groups.append(gp)
     return groups
@@ -52,9 +52,9 @@ def group(image):
 if __name__ == "__main__":
     out = cv2.imread(r"stylized.jpg")
     out = cv2.resize(out, (384, 384))
-    out = get_outline(out)
+    out = get_outline(out, "canny")
+    cv2.imwrite("canny.png", out)
     o = group(out)
-    print(o)
     img = np.zeros((384, 384, 1))
     for a in o:
         for i in a["dot_indexes"]:

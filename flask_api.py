@@ -26,7 +26,6 @@ def home():
 
 @app.route("/style_transfer", methods=["POST"])
 def trans():
-    print(request.json)
     content_img = request.json["content"]  # already base64
     style_img = request.json["style"]  # already base64
     stylized = backend.make_trans(content_img, style_img)
@@ -36,33 +35,18 @@ def trans():
 
 @app.route("/get_outline", methods=["POST"])
 def getline():
-    original_img = b64tocv2(request.values["img"])
+    original_img = b64tocv2(request.json["original"])
     outlines = backend.outline(original_img)
+    print(outlines)
     return jsonify({"outline": cv2tob64(outlines)})
 
 
-@app.route("/first_step", methods=["POST"])
-def firstline():
-    original_img = b64tocv2(request.values["content"])
-    pred, prev, drew = backend.firstline(original_img)
-    return jsonify({
-        "pred": cv2tob64(pred),
-        "prev": cv2tob64(prev),
-        "drew": cv2tob64(drew),
-    })
-
-
-@app.route("/next_step", methods=["POST"])
-def nextline():
-    original_img = request.values["content"]
-    cdrew = request.values["drew"]
-    cprev = request.values["prev"]
-    pred, prev, drew = backend.nextline(original_img, cprev, cdrew)
-    return jsonify({
-        "pred": cv2tob64(pred),
-        "prev": cv2tob64(prev),
-        "drew": cv2tob64(drew),
-    })
+@app.route("/gen_step", methods=["POST"])
+def gen_step():
+    lns = request.values["outline"]
+    sort_method = request.values["sort_method"]
+    steps = backend.gen_steps(b64tocv2(lns), sort_method=sort_method)
+    return jsonify({"steps": steps})
 
 
 if __name__ == "__main__":

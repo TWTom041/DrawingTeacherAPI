@@ -105,17 +105,6 @@ def outline(original_image):
     return output
 
 
-def firstline(original_image):
-    img = clean()
-    pred = gen_step.get_firstline(original_image)
-    prev = pred
-    drew = draw(img, pred[0:2], pred[2:4], pred[4], pred[5], pred[6])
-    return pred, prev, drew
+def gen_steps(outlines, sort_method):
+    outline_get.group(outlines, sort_method=sort_method)
 
-
-def nextline(original_image, prev, drew):
-    img = clean()
-    pred = gen_step.get_firstline(original_image)
-    prev = pred
-    drew = draw(img, pred[0:2], pred[2:4], pred[4], pred[5], pred[6])
-    return pred, prev, drew

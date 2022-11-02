@@ -106,5 +106,6 @@ def outline(original_image):
 
 
 def gen_steps(outlines, sort_method):
-    outline_get.group(outlines, sort_method=sort_method)
+    order = outline_get.group(outlines, sort_method=sort_method)
+    return order
 

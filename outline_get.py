@@ -6,9 +6,10 @@ def get_outline(image: np.ndarray, method="canny_blurred"):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     if method == "canny":
         return cv2.Canny(gray, 50, 150)
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    canny_blurred = cv2.Canny(blurred, 30, 150)
-    return canny_blurred
+    elif method == "canny_blurred":
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        canny_blurred = cv2.Canny(blurred, 30, 150)
+        return canny_blurred
 
 
 def group(image, sort_method="upper"):

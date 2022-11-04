@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify
-import cv2, base64
+import base64
+from cv2 import cv2
 import numpy as np
-import backend
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+
+import backend
 
 app = Flask(__name__)
 CORS(app)

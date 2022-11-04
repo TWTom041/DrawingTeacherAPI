@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 
 import content_trans
-import gen_step
 import outline_get
 
 SHAPE = (384, 384, 1)

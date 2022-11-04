@@ -2,6 +2,7 @@ import functools
 from matplotlib import gridspec
 import matplotlib.pylab as plt
 import tensorflow as tf
+import tensorflow_hub as hub
 
 
 def crop_center(image):
@@ -59,31 +60,11 @@ def convert(content, style):
     # show_n([content_image, style_image], ['Content image', 'Style image'])
 
     # using normal tensorflow
-    model = tf.saved_model.load(r".\tf_models\style_transfer\normal")
+    model = hub.load("https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2")
     outputs = model(content_image, style_image)
     stylized_image = outputs[0]
-
-    # using tensorflow lite
-    '''
-    outputs = tf.lite.Interpreter(model_path=r".\tf_models\style_transfer\lite\style_transfer.tflite")
-    input_details = outputs.get_input_details()
-    output_details = outputs.get_output_details()
-
-    outputs.resize_tensor_input(0, content_image.shape)
-    outputs.resize_tensor_input(1, style_image.shape)
-    outputs.allocate_tensors()
-
-    outputs.set_tensor(input_details[0]["index"], content_image)
-    outputs.set_tensor(input_details[1]["index"], style_image)
-    outputs.invoke()
-
-    stylized_image = outputs.get_tensor(output_details[0]["index"])
-    '''
 
     # show_n([content_image, style_image, stylized_image],
     #        titles=['Original content image', 'Style image', 'Stylized image'])
     return stylized_image[0]
 
-
-if __name__ == "__main__":
-    convert()

@@ -51,7 +51,7 @@ def trans():
 
 @app.route("/get_outline", methods=["POST"])
 def getline():
-    original_img = b64tocv2(request.json["original"])
+    original_img = cv2.resize(b64tocv2(request.json["original"]), (384, 384))
     outlines = backend.outline(original_img)
     return jsonify({"outline": cv2tob64(outlines)})
 

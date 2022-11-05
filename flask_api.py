@@ -1,4 +1,6 @@
 import base64
+import json
+
 from cv2 import cv2
 import numpy as np
 from flask import Flask, request, jsonify
@@ -11,6 +13,18 @@ CORS(app)
 app.debug = True
 
 SHAPE = (384, 384, 1)
+
+
+class NPEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, np.integer):
+            return int(o)
+        if isinstance(o, np.floating):
+            return float(o)
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        return json.JSONEncoder.default(self, o)
+
 
 
 def b64tocv2(b64img):
@@ -47,7 +61,7 @@ def gen_step():
     lns = request.json["outline"]
     sort_method = request.json["sort_method"]
     steps = backend.gen_steps(cv2.cvtColor(b64tocv2(lns), cv2.COLOR_BGR2GRAY), sort_method=sort_method)
-    return jsonify({"steps": steps})
+    return json.dumps({"steps": steps}, cls=NPEncoder)
 
 
 if __name__ == "__main__":

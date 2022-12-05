@@ -27,3 +27,11 @@ def get_semantic_segmentation(image: np.ndarray):
 
     output_data = model(input_data).numpy()[0]
     return output_data
+
+
+if __name__ == "__main__":
+    img = cv2.imread("t.jpg")
+    o = get_semantic_segmentation(img)
+    o = (o / o.max() * 255).astype(np.uint8)
+    cv2.imshow("", o)
+    cv2.waitKey(0)

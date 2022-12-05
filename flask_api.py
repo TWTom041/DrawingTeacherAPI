@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 import backend
+from backend import cv2tob64, b64tocv2
 
 app = Flask(__name__)
 CORS(app)
@@ -26,13 +27,7 @@ class NPEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-
-def b64tocv2(b64img):
-    return cv2.imdecode(np.frombuffer(base64.b64decode(b64img), dtype=np.uint8), cv2.IMREAD_COLOR)
-
-
-def cv2tob64(npimg):
-    return base64.b64encode(cv2.imencode('.png', npimg)[1]).decode()
+app.json_encoder()
 
 
 @app.route("/")
@@ -42,8 +37,8 @@ def home():
 
 @app.route("/style_transfer", methods=["POST"])
 def trans():
-    content_img = request.json["content"]  # already base64
-    style_img = request.json["style"]  # already base64
+    content_img = request.json["content"]  # str
+    style_img = request.json["style"]  # str
     stylized = backend.make_trans(content_img, style_img)
     output = cv2tob64(stylized)
     return jsonify({"stylized": output})

@@ -1,8 +1,14 @@
 import functools
-from matplotlib import gridspec
+import os
+
+import keras.models
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 import matplotlib.pylab as plt
 import tensorflow as tf
 import tensorflow_hub as hub
+from matplotlib import gridspec
 
 
 def crop_center(image):
@@ -60,11 +66,10 @@ def convert(content, style):
     # show_n([content_image, style_image], ['Content image', 'Style image'])
 
     # using normal tensorflow
-    model = hub.load("https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2")
+    model = keras.models.load_model("models/style_transfer/normal")
     outputs = model(content_image, style_image)
     stylized_image = outputs[0]
 
     # show_n([content_image, style_image, stylized_image],
     #        titles=['Original content image', 'Style image', 'Stylized image'])
     return stylized_image[0]
-

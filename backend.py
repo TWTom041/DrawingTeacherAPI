@@ -1,10 +1,20 @@
 import numpy as np
 from cv2 import cv2
+import base64
 
 import content_trans
 import outline_get
+import anime_gan_trans
 
 SHAPE = (384, 384, 1)
+
+
+def b64tocv2(b64img):
+    return cv2.imdecode(np.frombuffer(base64.b64decode(b64img), dtype=np.uint8), cv2.IMREAD_COLOR)
+
+
+def cv2tob64(npimg):
+    return base64.b64encode(cv2.imencode('.png', npimg)[1]).decode()
 
 
 def convert_arc(pt1, pt2, sagitta):
@@ -91,12 +101,16 @@ def draw(image, p1, p2, sag, thick, colour):
 
 
 def make_trans(content, style):
-    img = content_trans.convert(content, style)
-    if type(img) != np.ndarray:
-        img = img.numpy()
-    img *= 255
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    return img.astype(int)
+    if style not in ("Hayao", "Hayao_v2", "Paprika_v2", "Shinkai_v2"):
+        img = content_trans.convert(content, style)
+        if type(img) != np.ndarray:
+            img = img.numpy()
+        img *= 255
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        return img.astype(int)
+    else:
+        img = anime_gan_trans.process(b64tocv2(content), style)
+        return img.astype(int)
 
 
 def outline(original_image):

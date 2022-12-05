@@ -1,37 +1,47 @@
-import os
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
+from semseg import show_models, show_heads, show_datasets
+from pathlib import Path
+from semseg.models import *
+import torch
+from torchvision import io
+from torchvision import transforms as T
+from PIL import Image
+import cv2
 import numpy as np
-from cv2 import cv2
-import tensorflow as tf
-import tensorflow_hub as hub
 
 
-def get_semantic_segmentation(image: np.ndarray):
-    IMAGE_WIDTH = 512
-    IMAGE_HEIGHT = 512
-
-    keras_layer = hub.KerasLayer('https://tfhub.dev/google/edgetpu/vision/deeplab-edgetpu/fused_argmax/s/1')
-    model = tf.keras.Sequential([keras_layer])
-    model.build([None, IMAGE_WIDTH, IMAGE_HEIGHT, 3])
-
-    min_dim = min(image.shape[0], image.shape[1])
-    image = cv2.resize(image,
-                       (IMAGE_WIDTH * image.shape[0] // min_dim,
-                        IMAGE_HEIGHT * image.shape[1] // min_dim))
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    input_data = np.expand_dims(image, axis=0)
-    input_data = input_data[:, :IMAGE_WIDTH, :IMAGE_HEIGHT, :]
-    input_data = input_data.astype(np.float64) / 128 - 0.5
-
-    output_data = model(input_data).numpy()[0]
-    return output_data
+def show_image(image):
+    if image.shape[2] != 3: image = image.permute(1, 2, 0)
+    image = Image.fromarray(image.numpy())
+    return image
 
 
-if __name__ == "__main__":
-    img = cv2.imread("t.jpg")
-    o = get_semantic_segmentation(img)
-    o = (o / o.max() * 255).astype(np.uint8)
-    cv2.imshow("", o)
-    cv2.waitKey(0)
+ckpt = Path('./checkpoints/pretrained/segformer')
+model = eval("SegFormer")(
+    backbone="MiT-B3",
+    num_classes=150
+)
+
+model.load_state_dict(torch.load(r"checkpoints/pretrained/segformer/segformer.b3.ade.pth"))
+model.eval()
+
+image_path = "stylized.jpg"
+image = io.read_image(image_path)
+
+image = T.CenterCrop((512, 512))(image)
+image = image.float() / 255
+image = T.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))(image)
+image = image.unsqueeze(0)
+
+with torch.inference_mode():
+    seg = model(image)
+seg = seg.softmax(1).argmax(1).to(int)
+print(seg.unique())
+print(seg.shape)
+
+im = seg.cpu().detach().numpy().T
+print(type(im), im.shape, im.max(), im.min())
+cv2.imshow("", im.astype(np.uint8))
+cv2.waitKey(0)
+
+# seg_map = palette[seg].squeeze().to(torch.uint8)
+# show_image(seg)

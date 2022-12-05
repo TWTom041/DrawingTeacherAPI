@@ -7,3 +7,16 @@ matplotlib~=3.6.1
 tensorflow-hub
 onnx~=1.12.0
 onnxruntime~=1.13.1
+torch~=1.13.0
+semseg~=0.4.1
+torchvision~=0.14.0
+keras~=2.10.0
+PyYAML~=6.0
+tqdm~=4.64.1
+tabulate~=0.9.0
+rich~=12.6.0
+fvcore~=0.1.5.post20221122
+Pillow~=9.2.0
+einops~=0.6.0
+scipy~=1.9.3
+setuptools~=57.0.0

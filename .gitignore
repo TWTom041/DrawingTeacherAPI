@@ -7,6 +7,7 @@
 /tf_models/
 /venv/
 /.idea/
+/checkpoints/
 /outln.png
 /einstein.png
 /canny.png

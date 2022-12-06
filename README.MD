@@ -26,3 +26,4 @@ app.run(host="0.0.0.0", port=25555, ssl_context=('server.crt', 'server.key'))
    2. https://docs.google.com/uc?export=download&id=17XRNQgQoUAnu6SM5VgBuhqSBO4UAVNI1
    3. https://docs.google.com/uc?export=download&id=10rQfe4obW0dkNtsQuWg-szC4diBzYFXK
    4. https://docs.google.com/uc?export=download&id=1X3Glf69Ter_n2Tj6p81VpGKx7U4Dq-tI
+5. https://github.com/ultralytics/yolov5/releases/tag/v7.0

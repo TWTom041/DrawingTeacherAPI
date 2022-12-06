@@ -1,6 +1,7 @@
 from cv2 import cv2
 import numpy as np
 import time
+import segmentation_github
 
 
 def get_outline(image: np.ndarray, method="canny_blurred"):
@@ -13,39 +14,15 @@ def get_outline(image: np.ndarray, method="canny_blurred"):
         return canny_blurred
 
 
-def group(image, sort_method="upper"):
-    def dist(pa, pb):
-        return ((pa[0] - pb[0]) ** 2 + (pa[1] - pb[1]) ** 2) ** 0.5
+def dist(pa, pb):
+    return ((pa[0] - pb[0]) ** 2 + (pa[1] - pb[1]) ** 2) ** 0.5
 
-    def calculate_geocenter(dot_indexes):
-        return tuple(s / len(dot_indexes) for s in list(map(sum, list(map(list, zip(*dot_indexes))))))
 
-    def get_neighbor(coor, maps):
-        checker = [(-1, 0), (1, 0), (-1, -1), (0, -1), (1, -1), (-1, 1), (0, 1), (1, 1)]
-        oute = []
-        for i in checker:
-            target = (i[0] + coor[0], i[1] + coor[1])
-            if target[0] < 0 or target[1] < 0 or target[0] >= maps.shape[0] or target[1] >= maps.shape[1]:
-                continue
-            if maps[target] != 0:
-                oute.append(target)
-                maps[target] = 0
-        return oute, maps
+def calculate_geocenter(dot_indexes):
+    return tuple(s / len(dot_indexes) for s in list(map(sum, list(map(list, zip(*dot_indexes))))))
 
-    groups = []
-    maps_all = image
-    while (maps_all != 0).any():
-        nextdo = [(np.where(maps_all != 0)[0][0], np.where(maps_all != 0)[1][0])]
-        gp = {"geocenter": tuple, "dot_indexes": [nextdo[0]]}
-        maps_all[nextdo[0]] = 0
-        while nextdo:
-            for n in list(nextdo.copy()):
-                neighbors, maps_all = get_neighbor(n, maps_all)
-                nextdo.remove(n)
-                gp["dot_indexes"] += neighbors
-                nextdo += neighbors
-        gp["geocenter"] = calculate_geocenter(gp["dot_indexes"])
-        groups.append(gp)
+
+def sorter(sort_method, groups):
     if sort_method == "upper":
         return groups
     elif sort_method in ("nn", "nearest_neighbor"):
@@ -72,9 +49,39 @@ def group(image, sort_method="upper"):
             sorted_group.append(mini)
             groups.remove(mini)
         return sorted_group
-    elif sort_method in ("splitted_sort", "ss"):
+    elif sort_method in ("seg_sort", "ss"):
         sorted_group = []
+        return sorted_group
 
+
+def group(image, sort_method="upper"):
+    def get_neighbor(coor, maps):
+        checker = [(-1, 0), (1, 0), (-1, -1), (0, -1), (1, -1), (-1, 1), (0, 1), (1, 1)]
+        oute = []
+        for i in checker:
+            target = (i[0] + coor[0], i[1] + coor[1])
+            if target[0] < 0 or target[1] < 0 or target[0] >= maps.shape[0] or target[1] >= maps.shape[1]:
+                continue
+            if maps[target] != 0:
+                oute.append(target)
+                maps[target] = 0
+        return oute, maps
+
+    groups = []
+    maps_all = image
+    while (maps_all != 0).any():
+        nextdo = [(np.where(maps_all != 0)[0][0], np.where(maps_all != 0)[1][0])]
+        gp = {"geocenter": tuple, "dot_indexes": [nextdo[0]]}
+        maps_all[nextdo[0]] = 0
+        while nextdo:
+            for n in list(nextdo.copy()):
+                neighbors, maps_all = get_neighbor(n, maps_all)
+                nextdo.remove(n)
+                gp["dot_indexes"] += neighbors
+                nextdo += neighbors
+        gp["geocenter"] = calculate_geocenter(gp["dot_indexes"])
+        groups.append(gp)
+    return sorter(sort_method, groups)
 
 
 def show_image_sorted(o):

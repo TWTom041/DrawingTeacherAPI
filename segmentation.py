@@ -53,13 +53,12 @@ def process(source):
     return class_ids, confidences, boxes
 
 
-def get_foreground(image: np.ndarray):
+def get_foreground(image: np.ndarray, rect):
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
     bgd_model = np.zeros((1, 65), np.float64)
     fgd_model = np.zeros((1, 65), np.float64)
-    rect = [0, 0, 258, 193]
-    rect_copy = tuple(rect)
-    mask_new, b_model, f_model = cv2.grabCut(image, None, rect_copy, bgd_model, fgd_model, 5, cv2.GC_INIT_WITH_RECT)
+    rect = rect.tolist()
+    mask_new, b_model, f_model = cv2.grabCut(image, mask, rect, bgd_model, fgd_model, 5, cv2.GC_INIT_WITH_RECT)
     return mask_new
 
 
@@ -70,8 +69,12 @@ def kill_redundant(class_ids, confidences, boxes, threshold=10):
     for ci, co, bo in zip(class_ids, confidences, boxes):
         f = True
         for index, (nci, nco, nbo) in enumerate(zip(new_class_ids.copy(), new_confidences.copy(), new_boxes.copy())):
-            if all(bo[i]-nbo[i] < threshold for i in range(4)):
-                new_boxes[index] = np.array([(bo[0] + nbo[0]) / 2, min(bo[1], nbo[1]), max(bo[2], nbo[2]), max(bo[3], nbo[3])])
+            if all(bo[i] - nbo[i] < threshold for i in range(4)):
+                new_boxes[index] = np.array([
+                    (bo[0] + nbo[0]) / 2,
+                    (bo[1] + nbo[1]) / 2,
+                    (bo[2] + nbo[2]) / 2,
+                    (bo[3] + nbo[3]) / 2])
                 f = False
         if f:
             new_class_ids.append(ci)
@@ -80,15 +83,23 @@ def kill_redundant(class_ids, confidences, boxes, threshold=10):
     return new_class_ids, new_confidences, new_boxes
 
 
-if __name__ == "__main__":
-    a = cv2.imread("bus.jpg")
-    class_ids, confidences, boxes = process(a)
-    # o = get_foreground(o)
+def get_mask(in_image):
+    mask = np.zeros(in_image.shape[:2], dtype=np.uint8)
+    class_ids, confidences, boxes = process(in_image)
     # boxes = [np.array([topx, topy, width, length])]
-    class_ids, confidences, boxes = kill_redundant(class_ids, confidences, boxes, max(a.shape) / 20)
-    o = cv2.rectangle(a, boxes[0], (255, 0, 0), 2)
-    for box in boxes[1:]:
+    class_ids, confidences, boxes = kill_redundant(class_ids, confidences, boxes, max(in_image.shape) / 20)
+    # o = np.copy(in_image)
+    for box in boxes:
         # (box[0], box[1]), (box[0]+box[2], box[1]+box[3])
-        o = cv2.rectangle(o, box, (255, 0, 0), 2)
-    cv2.imshow("", o)
+        box = box.astype(int)
+        mask = cv2.bitwise_or(mask, get_foreground(in_image, box))
+        # o = cv2.rectangle(o, box, (255, 0, 0), 2)
+    return mask
+
+
+if __name__ == "__main__":
+    a = cv2.imread("test2.jpg")
+    m = get_mask(a)
+
+    cv2.imshow("m", m * 60)
     cv2.waitKey(0)

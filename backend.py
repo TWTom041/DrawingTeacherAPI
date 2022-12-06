@@ -118,7 +118,7 @@ def outline(original_image):
     return output
 
 
-def gen_steps(outlines, sort_method):
-    order = outline_get.group(outlines, sort_method=sort_method)
+def gen_steps(outlines, sort_method, content_image=None):
+    order = outline_get.group(outlines, sort_method=sort_method, content_image=content_image)
     return order
 

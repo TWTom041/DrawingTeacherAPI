@@ -55,7 +55,15 @@ def getline():
 def gen_step():
     lns = request.json["outline"]
     sort_method = request.json["sort_method"]
-    steps = backend.gen_steps(cv2.cvtColor(b64tocv2(lns), cv2.COLOR_BGR2GRAY), sort_method=sort_method)
+    if sort_method in ("ss", "seg_sort"):
+        content = request.json["content"]
+    else:
+        content = None
+    steps = backend.gen_steps(
+        cv2.cvtColor(b64tocv2(lns), cv2.COLOR_BGR2GRAY),
+        sort_method=sort_method,
+        content_image=b64tocv2(content)
+    )
     return json.dumps({"steps": steps}, cls=NPEncoder)
 
 

@@ -1,7 +1,8 @@
 from cv2 import cv2
 import numpy as np
 import time
-import segmentation_github
+import segmentation
+from collections import defaultdict
 
 
 def get_outline(image: np.ndarray, method="canny_blurred"):
@@ -22,7 +23,7 @@ def calculate_geocenter(dot_indexes):
     return tuple(s / len(dot_indexes) for s in list(map(sum, list(map(list, zip(*dot_indexes))))))
 
 
-def sorter(sort_method, groups):
+def sorter(sort_method, groups, content_image=None):
     if sort_method == "upper":
         return groups
     elif sort_method in ("nn", "nearest_neighbor"):
@@ -51,10 +52,21 @@ def sorter(sort_method, groups):
         return sorted_group
     elif sort_method in ("seg_sort", "ss"):
         sorted_group = []
+        store = defaultdict(list)
+        mask = segmentation.get_mask(content_image)
+
+        for contestant in groups:
+            g = contestant["dot_indexes"]
+            greatest = 0
+            for dot in g:
+                n = mask[dot]
+                greatest = n if n > greatest else greatest
+            store[greatest].append(contestant)
+        sorted_group = [t for _, v in sorted(store.items(), key=lambda item: item[0], reverse=True) for t in v]
         return sorted_group
 
 
-def group(image, sort_method="upper"):
+def group(image, sort_method="upper", content_image=None):
     def get_neighbor(coor, maps):
         checker = [(-1, 0), (1, 0), (-1, -1), (0, -1), (1, -1), (-1, 1), (0, 1), (1, 1)]
         oute = []
@@ -81,7 +93,7 @@ def group(image, sort_method="upper"):
                 nextdo += neighbors
         gp["geocenter"] = calculate_geocenter(gp["dot_indexes"])
         groups.append(gp)
-    return sorter(sort_method, groups)
+    return sorter(sort_method, groups, content_image)
 
 
 def show_image_sorted(o):
@@ -93,10 +105,10 @@ def show_image_sorted(o):
 
 
 if __name__ == "__main__":
-    out = cv2.imread(r"stylized.jpg")
-    out = cv2.resize(out, (384, 384))
+    ori = cv2.imread(r"test2.jpg")
+    out = cv2.resize(ori, (384, 384))
     out = get_outline(out)
     img = np.zeros((384, 384))
-    o = group(out, sort_method="nn")
+    o = group(out, sort_method="ss", content_image=ori)
     show_image_sorted(o)
     cv2.imwrite("outln.png", out)

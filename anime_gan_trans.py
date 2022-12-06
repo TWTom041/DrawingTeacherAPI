@@ -45,7 +45,7 @@ def process(input_image, model_name):
 
 
 if __name__ == "__main__":
-    test_img = cv2.imread("stylized.jpg")
-    o = process(test_img, "Shinkai_v2")
+    test_img = cv2.imread("content.jpg")
+    o = process(test_img, "Hayao_v2")
     cv2.imshow("", o)
     cv2.waitKey(0)

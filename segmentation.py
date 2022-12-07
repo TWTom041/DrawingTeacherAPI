@@ -98,7 +98,7 @@ def get_mask(in_image):
 
 
 if __name__ == "__main__":
-    a = cv2.imread("test2.jpg")
+    a = cv2.imread("test.jpg")
     m = get_mask(a)
 
     cv2.imshow("m", m * 60)

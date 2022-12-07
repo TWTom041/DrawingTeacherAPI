@@ -1,6 +1,7 @@
 from cv2 import cv2
 import numpy as np
 import onnxruntime as ort
+from collections import defaultdict
 
 
 def unwrap_detection(input_image, output_data):
@@ -89,17 +90,27 @@ def get_mask(in_image):
     # boxes = [np.array([topx, topy, width, length])]
     class_ids, confidences, boxes = kill_redundant(class_ids, confidences, boxes, max(in_image.shape) / 20)
     # o = np.copy(in_image)
+    masks = defaultdict(list)
     for box in boxes:
         # (box[0], box[1]), (box[0]+box[2], box[1]+box[3])
         box = box.astype(int)
-        mask = cv2.bitwise_or(mask, get_foreground(in_image, box))
+        mask_now = get_foreground(in_image, box)
+        for u in np.unique(mask_now):
+            masks[u].append(np.vectorize(lambda _i: 1 if _i == u else 0)(mask_now))
         # o = cv2.rectangle(o, box, (255, 0, 0), 2)
+    masks = (t for k, v in masks.items() for t in v)
+    masks = (t * (i+1) for i, t in enumerate(masks))
+    for nm in masks:
+        mask = cv2.bitwise_or(nm.astype(np.uint8), mask)
+    # cv2.imshow("oo", o)
     return mask
 
 
 if __name__ == "__main__":
-    a = cv2.imread("test.jpg")
+    a = cv2.imread("car1.png")
     m = get_mask(a)
+    m = m - np.min(m)
 
-    cv2.imshow("m", m * 60)
+    cv2.imshow("m", (np.copy(m) * 200.0 / m.max()).astype(np.uint8))
+    cv2.imshow("a", a)
     cv2.waitKey(0)

@@ -11,7 +11,7 @@ def get_outline(image: np.ndarray, method="canny_blurred"):
         return cv2.Canny(gray, 50, 150)
     elif method == "canny_blurred":
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-        canny_blurred = cv2.Canny(blurred, 30, 150)
+        canny_blurred = cv2.Canny(blurred, 50, 180)
         return canny_blurred
 
 
@@ -99,16 +99,17 @@ def group(image, sort_method="upper", content_image=None):
 def show_image_sorted(o):
     for i in o:
         for index in i["dot_indexes"]:
-            img[index] = 1
-        cv2.imshow("", img)
+            print(1)
+            img[index] = 255
+        cv2.imshow("", img.astype(np.uint8))
         cv2.waitKey(0)
 
 
 if __name__ == "__main__":
-    ori = cv2.imread(r"test2.jpg")
-    out = cv2.resize(ori, (384, 384))
-    out = get_outline(out)
-    img = np.zeros((384, 384))
+    ori = cv2.imread(r"cow2.jpg")
+    # out = ori[:384, :384]
+    out = get_outline(ori)
+    img = np.zeros_like(out, dtype=np.uint8)
     o = group(out, sort_method="ss", content_image=ori)
     show_image_sorted(o)
     cv2.imwrite("outln.png", out)

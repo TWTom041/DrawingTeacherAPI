@@ -5,8 +5,9 @@
       <sourceFolder url="file://$MODULE_DIR$/semantic-segmentation" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/models" />
+      <excludeFolder url="file://$MODULE_DIR$/yolov7" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.9 (DrawingTeacher) (2)" jdkType="Python SDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

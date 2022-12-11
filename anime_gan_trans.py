@@ -10,6 +10,16 @@ elif device_name == 'GPU':
     providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
 
 
+def crop_center(image):
+    """Returns a cropped square image."""
+    shape = image.shape
+    new_shape = min(shape[0], shape[1])
+    offset_y = max(shape[0] - shape[1], 0) // 2
+    offset_x = max(shape[1] - shape[0], 0) // 2
+    image = image[offset_y:(offset_y+new_shape), offset_x:(offset_x+new_shape)]
+    return image
+
+
 def process_image(img, x32=True):
     h, w = img.shape[:2]
     if x32:  # resize image to multiple of 32s
@@ -41,7 +51,7 @@ def convert(img, scale, model_name):
 def process(input_image, model_name):
     mat, scale = load_test_data(input_image)
     res = convert(mat, scale, model_name)
-    return res
+    return crop_center(res)
 
 
 if __name__ == "__main__":

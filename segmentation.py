@@ -85,6 +85,7 @@ def kill_redundant(class_ids, confidences, boxes, threshold=10):
 
 
 def get_mask(in_image):
+    in_image = cv2.resize(in_image, (384, 384))
     mask = np.zeros(in_image.shape[:2], dtype=np.uint8)
     class_ids, confidences, boxes = process(in_image)
     # boxes = [np.array([topx, topy, width, length])]
@@ -111,6 +112,6 @@ if __name__ == "__main__":
     m = get_mask(a)
     m = m - np.min(m)
 
-    cv2.imshow("m", (np.copy(m) * 200.0 / m.max()).astype(np.uint8))
+    cv2.imshow("m", (np.copy(m) * 200.0 / float(m.max())).astype(np.uint8))
     cv2.imshow("a", a)
     cv2.waitKey(0)

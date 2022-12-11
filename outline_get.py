@@ -99,7 +99,6 @@ def group(image, sort_method="upper", content_image=None):
 def show_image_sorted(o):
     for i in o:
         for index in i["dot_indexes"]:
-            print(1)
             img[index] = 255
         cv2.imshow("", img.astype(np.uint8))
         cv2.waitKey(0)

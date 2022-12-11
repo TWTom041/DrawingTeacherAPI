@@ -65,4 +65,4 @@ def gen_step():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=25555, ssl_context=('server.crt', 'server.key'))
+    app.run(host="0.0.0.0", port=25525, ssl_context=('server.crt', 'server.key'))
